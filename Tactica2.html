@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulator Colocviu Tactică - Variante Complete</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { primary: '#1e3a8a', correct: '#166534', error: '#991b1b', magic: '#8b5cf6' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f3f4f6; scroll-behavior: smooth; }
+        .paper-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        .tab-btn.active { border-bottom: 3px solid #1e3a8a; color: #1e3a8a; font-weight: 700; background-color: #eff6ff; }
+        
+        /* Custom Radio Buttons */
+        .quiz-option { cursor: pointer; display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem; border-radius: 0.375rem; transition: background-color 0.2s; }
+        .quiz-option:hover { background-color: #f8fafc; }
+        .quiz-option input[type="radio"] { margin-top: 0.25rem; accent-color: #1e3a8a; transform: scale(1.1); }
+        
+        /* Input & Textarea */
+        .text-input { width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; outline: none; transition: border-color 0.2s; font-family: 'Inter', sans-serif; }
+        .text-input:focus { border-color: #1e3a8a; box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.1); }
+        
+        /* Evaluated States */
+        .option-correct { background-color: #dcfce7 !important; border: 1px solid #86efac; color: #166534; font-weight: 600; }
+        .option-error { background-color: #fee2e2 !important; border: 1px solid #fca5a5; color: #991b1b; text-decoration: line-through; }
+        .option-missed { color: #166534; font-weight: 600; text-decoration: underline; }
+        .expected-answer { display: none; margin-top: 0.75rem; padding: 0.75rem; background-color: #f0fdf4; border-left: 4px solid #166534; color: #166534; font-size: 0.9rem; font-weight: 600; border-radius: 0 0.375rem 0.375rem 0; }
+        .evaluated .expected-answer { display: block; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased p-2 md:p-6">
+
+    <div class="max-w-5xl mx-auto bg-white rounded-xl paper-shadow border border-gray-200 overflow-hidden flex flex-col min-h-[90vh]">
+        
+        <header class="bg-gray-800 text-white p-6 md:p-8 text-center md:text-left">
+            <h1 class="text-2xl md:text-3xl font-bold uppercase tracking-wide">Simulator Colocviu Tactică</h1>
+            <p class="text-sm text-gray-300 mt-2">Versiune Perfectă (Extrasă strict din imagini). Validare conform suport de curs.</p>
+        </header>
+
+        <!-- Tabs -->
+        <div class="flex overflow-x-auto border-b border-gray-300 bg-gray-50 hide-scrollbar" id="tabs-container">
+            <!-- Tabs injected via JS -->
+        </div>
+
+        <!-- Content Area -->
+        <div class="p-4 md:p-8 flex-grow" id="quiz-container">
+            <!-- Questions injected via JS -->
+        </div>
+
+    </div>
+
+    <script>
+        // BAZA DE DATE - EXTRASĂ STRICT DIN CELE 6 IMAGINI
+        const quizData = {
+            variant1: {
+                title: "Variantă 1",
+                sections: [
+                    {
+                        title: "I. ITEMI TACTICĂ GENERALĂ - Încercuiți răspunsurile considerate corecte:",
+                        items: [
+                            { type: "radio", id: "v1_q1", text: "1. În ofensivă, batalionul de infanterie organizează P.C. de bază care va fi dispus:", options: { a: "înapoia P.C.Rz./B., la 4-6 km față de aliniamentul de contact", b: "înapoia eșalonului doi, la 6-8 km față de aliniamentul de contact", c: "între eșalonul I și II, la aproximativ 1,5-2,5 km față de contact, pe direcția efortului principal" }, correct: "c" },
+                            { type: "radio", id: "v1_q2", text: "2. Gruparea de angajare a batalionului de infanterie în ofensivă se compune din: elementele de manevră; elementele de sprijin și:", options: { a: "rezervele de armă", b: "elementele de conducere", c: "elementele logistice" }, correct: "a" },
+                            { type: "radio", id: "v1_q3", text: "3. În ofensivă, plutonul întreținere organizează o zonă de adunare a tehnicii deteriorate, care se dispune:", options: { a: "înapoia P.C.Rz./B., la 4-6 km față de aliniamentul de contact", b: "înapoia eșalonului doi, la 6-8 km față de aliniamentul de contact", c: "înapoia rezervei, la 5-8 km față de aliniamentul de contact" }, correct: "b" },
+                            { type: "radio", id: "v1_q4", text: "4. În apărare, din cadrul forțelor de sprijin al luptei fac parte:", options: { a: "companiile de infanterie", b: "plutonul medical", c: "plutonul de apărare CBRN" }, correct: "c" },
+                            { type: "radio", id: "v1_q5", text: "5. În apărare, plutonul de rachete antiaeriene își dispune grupele de lansare la o distanță de 300-800 m față de contact:", options: { a: "0,3-0,8 km față de limita dinaintea apărării", b: "1-1,5 km față de limita dinaintea apărării", c: "1,5-2,5 km față de limita dinaintea apărării" }, correct: "a" },
+                            { type: "radio", id: "v1_q6", text: "6. În apărare, rezerva batalionului este constituită din ........ care nu primește sarcini:", options: { a: "1 pluton artilerie", b: "1 pluton infanterie (sau tancuri)", c: "1 pluton geniu luptă" }, correct: "b" },
+                            { type: "radio", id: "v1_q7", text: "7. În cazul deplasării pe autovehicule a batalionului, haltele mici (începând cu a doua astfel de haltă) se fixează astfel:", options: { a: "după 1-2 ore de marș, având durata de 10-20 min", b: "după 2-3 ore de marș, având durata de 20-30 min", c: "după 3-4 ore de marș, având durata de 50 min" }, correct: "b" },
+                            { type: "radio", id: "v1_q8", text: "8. Pe timpul deplasării, raionul de odihnă de zi /noapte se fixează:", options: { a: "după jumătatea unei etape de marș", b: "după executarea unei etape de marș", c: "după 24 de ore de deplasare" }, correct: "b" },
+                            { type: "radio", id: "v1_q9", text: "9. Pentru dispunere (staționare), companiei i se va repartiza o zonă care va avea, în principiu, dimensiunea de:", options: { a: "5 km²", b: "8 km²", c: "12 km²" }, correct: "a" },
+                            { type: "radio", id: "v1_q10", text: "10. Ordinul este instrucțiunea cu ajutorul căreia comandantul batalionului:", options: { a: "transmite sarcinile subordonaților", b: "pornește procesul de planificare a acțiunilor", c: "exercită comanda misiunii" }, correct: "c" }
+                        ]
+                    },
+                    {
+                        title: "II. Completați denumirea acronimelor:",
+                        items: [
+                            { type: "text", id: "v1_a1", text: "FRAGO", expected: "Ordin fragmentar" },
+                            { type: "text", id: "v1_a2", text: "PO CBRN", expected: "Post de observare CBRN" },
+                            { type: "text", id: "v1_a3", text: "CBT", expected: "De luptă" },
+                            { type: "text", id: "v1_a4", text: "DMB", expected: "Detașament mobil de baraje" }
+                        ]
+                    },
+                    {
+                        title: "III. Materializați grafic pe foaia de lucru:",
+                        items: [
+                            { type: "graphic", id: "v1_g1", text: "1. Raionul punctului de comandă de bază al batalionului 10 infanterie moto lângă care funcționează un post de observare de Ap. CBRN și un post de observare de artilerie AA care execută observarea 6 ore începând cu data de 13.01.2025, ora 10.00", expected: "Simbol P.C. Bază (MAIN B.10 Inf.Mo.) + 2 simboluri de observare (Ap. CBRN și AA) + adnotare DTG 131000 IAN 25 - 131600 IAN 25." },
+                            { type: "graphic", id: "v1_g2", text: "2. Deplasarea, la ordin, a plutonului 2 Com.Inf. din raionul de bază al companiei 10 Com.Inf. în cel de rezervă pe un itinerar cu lungimea de 50 km începând cu data de 13.01.2025, ora 08.00", expected: "O săgeată punctată de la raion MAIN la raion REAR + indicativ Pl.2/Cp.10 Com.Inf + text deasupra săgeții (L=50km, DTG 130800 IAN 25)." },
+                            { type: "graphic", id: "v1_g3", text: "3. Cercetarea unui itinerar cu lungimea de 20 km executată în data de 13.01.2025, începând cu ora 12.00 de către grupa 1 din plutonul 3 Cc. CBRN.", expected: "Săgeată de cercetare itinerar + L=20km + DTG 131200 IAN 25 + indicativ Grp 1/Pl.3 Cc CBRN." }
+                        ]
+                    }
+                ]
+            },
+            variant2: {
+                title: "Variantă 2",
+                sections: [
+                    {
+                        title: "I. ITEMI TACTICĂ GENERALĂ - Încercuiți răspunsurile considerate corecte:",
+                        items: [
+                            { type: "radio", id: "v2_q1", text: "1. Scopul general al ofensivei este înfrângerea inamicului sau:", options: { a: "crearea condițiilor pentru succesul acțiunilor de luptă ulterioare", b: "capturarea inamicului", c: "obținerea superiorității pe câmpul de luptă" }, correct: "a" },
+                            { type: "radio", id: "v2_q2", text: "2. De regulă, batalionul primește sarcini pentru:", options: { a: "o zi de luptă", b: "2-4 zile de luptă", c: "o săptămână de luptă" }, correct: "a" },
+                            { type: "radio", id: "v2_q3", text: "3. Structura ofensivei cuprinde:", options: { a: "dispozitivul de manevră; sistemul de informații; angajarea în luptă", b: "dispozitivul de luptă; sistemul de lovire; amenajarea genistică", c: "dispozitivul de operații; sistemul de comunicații; amenajarea spațiului de luptă" }, correct: "b" },
+                            { type: "radio", id: "v2_q4", text: "4. Dispozitivul de luptă al batalionului de infanterie în ofensivă cuprinde: sistemul de conducere; ...............; sistemul logistic; rezerva.", options: { a: "grupurile de atac", b: "gruparea de angajare", c: "gruparea principală" }, correct: "b" },
+                            { type: "radio", id: "v2_q5", text: "5. Sistemul de conducere al batalionului de infanterie în ofensivă este materializat de:", options: { a: "punctele de comandă", b: "raioanele de dispunere", c: "statul major al eșalonului superior" }, correct: "a" },
+                            { type: "radio", id: "v2_q6", text: "6. Batalionul execută acțiuni ofensive prin următoarele procedee: din contact nemijlocit cu inamicul sau:", options: { a: "din mișcare repede", b: "din mișcare", c: "din grabă" }, correct: "b" },
+                            { type: "radio", id: "v2_q7", text: "7. În ofensivă, plutonul medical organizează un punct medical, care se dispune:", options: { a: "în apropierea P.C.Rz./B.", b: "înapoia eșalonului unu, la 2-3 km față de aliniamentul de contact", c: "înapoia eșalonului doi, la 4-6 km față de aliniamentul de contact" }, correct: "c" },
+                            { type: "radio", id: "v2_q8", text: "8. Din cadrul forțelor de sprijin al conducerii fac parte plutonul de comunicații și informatică, elemente de sprijin logistic și de personal și:", options: { a: "plutonul de geniu", b: "plutonul de cercetare", c: "plutonul de apărare CBRN" }, correct: "b" },
+                            { type: "radio", id: "v2_q9", text: "9. Scopul general al apărării este de a opri atacul inamicului și:", options: { a: "de a prelua inițiativa", b: "regruparea ulterioară a trupelor proprii pe aliniamente succesive", c: "produce pierderi însemnate acestuia" }, correct: "a" },
+                            { type: "radio", id: "v2_q10", text: "10. În apărare, batalionul de infanterie organizează P.C. de bază care va fi dispus:", options: { a: "între eșalonul I și II, la aproximativ 1,5-2,5 km față de LDA, pe direcția secundară de interzis", b: "între eșalonul I și II, la aproximativ 2-3,5 km față de LDA, pe direcția principală de interzis", c: "în spatele eșalonului II, la aproximativ 4-6 km față de contact față de LDA" }, correct: "b" },
+                            { type: "radio", id: "v2_q11", text: "11. În apărare, din cadrul forțelor de sprijin al luptei fac parte:", options: { a: "plutoanele de aruncătoare 120 mm, dacă nu sunt incluse în planul de manevră", b: "plutonul întreținere", c: "plutonul de sprijin logistic" }, correct: "a" },
+                            { type: "radio", id: "v2_q12", text: "12. În apărare, elementele de sprijin logistic se dispun într-un raion situat la:", options: { a: "6-8 km față de limita dinainte a apărării", b: "8-10 km față de limita dinainte a apărării", c: "10-12 km față de limita dinainte a apărării" }, correct: "c" },
+                            { type: "radio", id: "v2_q13", text: "13. Marșul va fi adoptat de către batalion la deplasarea pe distanțe scurte:", options: { a: "de până la 100 km", b: "până la o etapă de marș", c: "de minim trei etape de marș" }, correct: "b" },
+                            { type: "radio", id: "v2_q14", text: "14. Etapa de marș reprezintă distanța parcursă de batalion în:", options: { a: "12 ore", b: "24 de ore", c: "48 de ore" }, correct: "b" },
+                            { type: "radio", id: "v2_q15", text: "15. În cazul deplasării pe autovehicule a batalionului, haltele mici se fixează astfel:", options: { a: "prima după 1-2 ore de marș, iar următoarele după fiecare 2-3 ore de marș", b: "prima după 2-3 ore de marș, iar următoarele după fiecare 4-6 ore de marș", c: "prima după 3 ore de marș, iar următoarele după fiecare 6 ore de marș" }, correct: "a" },
+                            { type: "radio", id: "v2_q16", text: "16. Pe timpul deplasării batalionului de infanterie, punctul inițial se stabilește la aproximativ ........ pe itinerarul de marș.", options: { a: "1 km", b: "5 km", c: "10 km" }, correct: "a" },
+                            { type: "radio", id: "v2_q17", text: "17. Pentru dispunere (staționare), batalionului i se va repartiza o zonă care va avea, în principiu, dimensiunea de:", options: { a: "15 km²", b: "20 km²", c: "30 km²" }, correct: "c" },
+                            { type: "radio", id: "v2_q18", text: "18. Dispozitivul de staționare se compune din: .........., elementele de siguranță, forțele principale, sistemul de conducere, sistemul logistic.", options: { a: "elemente precursoare", b: "elementele de cercetare", c: "elemente de sprijin" }, correct: "b" },
+                            { type: "radio", id: "v2_q19", text: "19. Ordinele cuprind următoarea structură:", options: { a: "situația, misiunea, execuția, sprijinul logistic, comanda și comunicațiile", b: "referințe, misiunea, concepția, sprijinul logistic, coordonarea", c: "situația, misiunea, obiectivele, sprijinul de luptă, sprijinul logistic" }, correct: "a" },
+                            { type: "radio", id: "v2_q20", text: "20. În toate tipurile de acțiuni, utilizarea planificată a distrugerilor este corelată cu:", options: { a: "acțiunile ulterioare", b: "planul de operații", c: "posibilitățile structurilor de EOD / geniu" }, correct: "b" }
+                        ]
+                    },
+                    {
+                        title: "II. Completați denumirea acronimelor:",
+                        items: [
+                            { type: "text", id: "v2_a1", text: "Ra.A.A.", expected: "Rachete și artilerie antiaeriană" },
+                            { type: "text", id: "v2_a2", text: "F.I.A.Bl.", expected: "Forța de intervenție antiblindate" },
+                            { type: "text", id: "v2_a3", text: "PAMC", expected: "Punct de adunare materiale contaminate" },
+                            { type: "text", id: "v2_a4", text: "RAED", expected: "Raion de adunare a echipamentelor deteriorate" },
+                            { type: "text", id: "v2_a5", text: "OPORD", expected: "Ordin de operații" }
+                        ]
+                    },
+                    {
+                        title: "III. Materializați grafic pe foaia de lucru:",
+                        items: [
+                            { type: "graphic", id: "v2_g1", text: "1. Raionul punctului de comandă de bază al batalionului 12 infanterie în care funcționează plutonul 3 Com.Inf. din compania 5 și lângă care este instalat un post de observare de apărare CBRN care execută observarea timp de 6 ore începând cu 16.05.2025, ora 12.00.", expected: "Simbol MAIN B.12 Inf., cu post observare CBRN desenat alăturat și adnotare durată/oră." },
+                            { type: "graphic", id: "v2_g2", text: "2. Deplasarea, la ordin, a plutonului 2 Com.Inf. din raionul de bază al companiei 10 Com.Inf. în cel de rezervă pe un itinerar cu lungimea de 20 km începând cu data de 16.05.2025, ora 10.00.", expected: "Săgeată de deplasare de la raion MAIN la raion REAR, L=20km, DTG marcate corect." },
+                            { type: "graphic", id: "v2_g3", text: "3. Cercetarea raionului de dispunere al batalionului 3 tancuri, executată de către grupa 1 din plutonul 3 cercetare de geniu începând cu data de 16.05.2025 între orele 10.00 și 14.00.", expected: "Simbol circular de cercetare zonă (Ge) trasat pentru perimetrul B.3 Tc." },
+                            { type: "graphic", id: "v2_g4", text: "4. Cercetarea unui itinerar cu lungimea de 15 km executată în data de 16.05.2025, începând cu ora 12.00 de către grupa 1 din plutonul 3 cercetare din compania 4 sprijin.", expected: "Săgeată dublă (sau specifică cercetare itinerar) pe distanța vizată." }
+                        ]
+                    }
+                ]
+            },
+            variant3: {
+                title: "Variantă 3 (Costan Rareș)",
+                sections: [
+                    {
+                        title: "A. TACTICĂ GENERALĂ - Încercuiți răspunsurile considerate corecte:",
+                        items: [
+                            { type: "radio", id: "v3_q1", text: "1. Structura ofensivei cuprinde:", options: { a: "dispozitivul de manevră; sistemul de informații; angajarea în luptă", b: "dispozitivul de luptă; sistemul de lovire; amenajarea genistică", c: "dispozitivul de operații; sistemul de comunicații; amenajarea spațiului de luptă" }, correct: "b" },
+                            { type: "radio", id: "v3_q2", text: "2. Dispozitivul de luptă al batalionului cuprinde: sistemul de conducere; ...............; sistemul logistic; rezerva.", options: { a: "grupurile de atac", b: "gruparea de angajare", c: "gruparea principală" }, correct: "b" },
+                            { type: "radio", id: "v3_q3", text: "3. Sistemul de conducere al batalionului în ofensivă este materializat de:", options: { a: "punctele de comandă", b: "raioanele de dispunere", c: "statul major al eșalonului superior" }, correct: "a" },
+                            { type: "radio", id: "v3_q4", text: "4. Batalionul execută acțiuni ofensive prin următoarele procedee: din contact nemijlocit cu inamicul sau:", options: { a: "din mișcare repede", b: "din mișcare", c: "din grabă" }, correct: "b" },
+                            { type: "radio", id: "v3_q5", text: "5. În ofensivă, plutonul medical organizează un punct medical, care se dispune:", options: { a: "în apropierea P.C.Rz./B.", b: "înapoia eșalonului unu, la 2-3 km față de aliniamentul de contact", c: "înapoia eșalonului doi, la 4-6 km față de aliniamentul de contact" }, correct: "c" },
+                            { type: "radio", id: "v3_q6", text: "6. Scopul general al apărării este de a opri atacul inamicului și:", options: { a: "de a prelua inițiativa", b: "regruparea ulterioară a trupelor proprii pe aliniamente succesive", c: "produce pierderi însemnate acestuia" }, correct: "a" },
+                            { type: "radio", id: "v3_q7", text: "7. În apărare, batalionul de infanterie organizează P.C. de bază care va fi dispus:", options: { a: "între eșalonul I și II, la aproximativ 1,5-2,5 km față de LDA, pe direcția secundară de interzis", b: "între eșalonul I și II, la aproximativ 2-3,5 km față de LDA, pe direcția principală de interzis", c: "în spatele eșalonului II, la aproximativ 4-6 km față de contact față de LDA" }, correct: "b" },
+                            { type: "radio", id: "v3_q8", text: "8. În apărare, din cadrul forțelor de sprijin al luptei fac parte:", options: { a: "plutoanele de aruncătoare 120 mm, dacă nu sunt incluse în planul de manevră", b: "plutonul întreținere", c: "plutonul de sprijin logistic" }, correct: "a" },
+                            { type: "radio", id: "v3_q9", text: "9. Etapa de marș reprezintă distanța parcursă de batalion în:", options: { a: "12 ore", b: "24 de ore", c: "48 de ore" }, correct: "b" },
+                            { type: "radio", id: "v3_q10", text: "10. În cazul deplasării pe autovehicule, haltele mici se fixează astfel:", options: { a: "prima după 1-2 ore de marș, iar următoarele după fiecare 2-3 ore de marș", b: "prima după 2-3 ore de marș, iar următoarele după fiecare 4-6 ore de marș", c: "prima după 3 ore de marș, iar următoarele după fiecare 6 ore de marș" }, correct: "a" },
+                            { type: "radio", id: "v3_q11", text: "11. Pe timpul deplasării, punctul inițial se stabilește la aproximativ ........ pe itinerarul de marș.", options: { a: "1 km", b: "5 km", c: "10 km" }, correct: "a" },
+                            { type: "radio", id: "v3_q12", text: "12. Pentru dispunere (staționare), batalionului i se va repartiza o zonă care va avea, în principiu, dimensiunea de:", options: { a: "15 km²", b: "20 km²", c: "30 km²" }, correct: "c" },
+                            { type: "radio", id: "v3_q13", text: "13. Dispozitivul de staționare se compune din: .........., elementele de siguranță, forțele principale, sistemul de conducere, sistemul logistic.", options: { a: "elemente precursoare", b: "elementele de cercetare", c: "elemente de sprijin" }, correct: "b" },
+                            { type: "radio", id: "v3_q14", text: "14. Instrucțiunile cu caracter permanent sunt acele documente ............ pe care comandamentul le emite:", options: { a: "de conducere", b: "care fac referiri la detalii standard", c: "ambele variante sunt corecte" }, correct: "c" },
+                            { type: "radio", id: "v3_q15", text: "15. Ordinele cuprind următoarea structură:", options: { a: "situația, misiunea, execuția, sprijinul logistic, comanda și comunicațiile", b: "referințe, misiunea, concepția, sprijinul logistic, coordonarea", c: "situația, misiunea, obiectivele, sprijinul de luptă, sprijinul logistic" }, correct: "a" }
+                        ]
+                    },
+                    {
+                        title: "II. Completați denumirea acronimelor:",
+                        items: [
+                            { type: "text", id: "v3_a1", text: "Ra.A.A.", expected: "Rachete și artilerie antiaeriană" },
+                            { type: "text", id: "v3_a2", text: "F.I.A.Bl.", expected: "Forța de intervenție antiblindate" },
+                            { type: "text", id: "v3_a3", text: "PAMC", expected: "Punct de adunare materiale contaminate" },
+                            { type: "text", id: "v3_a4", text: "RAED", expected: "Raion de adunare a echipamentelor deteriorate" },
+                            { type: "text", id: "v3_a5", text: "OPORD", expected: "Ordin de operații" }
+                        ]
+                    },
+                    {
+                        title: "III. Materializați grafic pe foaia de lucru:",
+                        items: [
+                            { type: "graphic", id: "v3_g1", text: "1. Raionul punctului de comandă de bază al batalionului 12 infanterie în care funcționează plutonul 3 Com.Inf. din compania 5 și lângă care este instalat un post de observare de apărare CBRN care execută observarea timp de 6 ore începând cu 16.12.00 05 2025.", expected: "Se desenează P.C. Bază pentru B.12 Inf, cu post observare CBRN alăturat și DTG-ul cerut aplicat." },
+                            { type: "graphic", id: "v3_g2", text: "2. Deplasarea, la ordin, a plutonului 2 Com.Inf. din raionul de bază al companiei 10 Com.Inf. în cel de rezervă pe un itinerar cu lungimea de 30 km începând cu data de 14.05.2026, ora 10.00.", expected: "Se trasează săgeata punctată (deplasare viitoare) între raion MAIN și raion REAR, notată cu DTG și L=30km." }
+                        ]
+                    },
+                    {
+                        title: "B. TACTICĂ DE SPECIALITATE - Încercuiți răspunsurile considerate corecte:",
+                        items: [
+                            { type: "radio", id: "v3_s1", text: "1. Care din afirmațiile de mai jos sunt adevărate?", options: { a: "nici o variantă nu este corectă", b: "majoritatea acțiunilor unităților tactice sunt acțiuni ofensive", c: "majoritatea acțiunilor unităților tactice sunt acțiuni defensive" }, correct: "b" },
+                            { type: "radio", id: "v3_s2", text: "2. Gama de frecvențe cea mai utilizată în comunicațiile radio ale batalionului de luptă în ofensivă o reprezintă una din următoarele:", options: { a: "VHF", b: "HF" }, correct: "a" },
+                            { type: "radio", id: "v3_s3", text: "3. Pentru exploatarea în condiții de securitate și capacitate maximă a autostației radioreleu este încadrată cu un echipaj specializat din arma comunicații și informatică format din:", options: { a: "comandantul plutonului radioreleu", b: "2-3 operatori radio / șeful echipajului" }, correct: "b" },
+                            { type: "radio", id: "v3_s4", text: "4. În România, radioreleelor numerice militare le-au fost rezervate următoarele benzi de frecvențe:", options: { a: "Banda I NATO: 225-400 MHz", b: "Banda III NATO: 1350-1850 MHz", c: "Banda V NATO: 5500-7200 MHz" }, correct: "b" },
+                            { type: "text", id: "v3_s5", text: "5. Completați elementele care lipsesc din enunțul: \"Autostația radioreleu........... este destinată pentru realizarea legăturilor ................... prin radioreleu, fibră optică și cablu cu curenți purtători...\"", expected: "Radio" },
+                            { type: "radio", id: "v3_s6", text: "6. Analizați schema care reprezintă interconectarea autostațiilor... Din figură lipsesc două elemente de comunicații... Care sunt acestea?", options: { a: "autostație radioreleu ARR-II", b: "autostație radioreleu tip I / ARR-I și autostație/stație terminală satelitară / SATCOM", c: "punct de acces radio / PAR" }, correct: "b" },
+                            { type: "radio", id: "v3_s7", text: "7. Din punct de vedere funcțional containerul radioreleu este compus din următoarele subsisteme:", options: { a: "subsistemul de management local, subsistemul de interconectare, subsistemul de transport, subsistemul de electroalimentare și electrosecuritate", b: "doar subsistemul de management local", c: "funcția de acoperire radio-relay coverage" }, correct: "a" },
+                            { type: "radio", id: "v3_s8", text: "8. O linie radioreleu este realizată din următoarele elemente:", options: { a: "azimutul magnetic și elongația", b: "echipamente (stații) terminale finale", c: "tronsoane (secțiuni)" }, correct: "c" },
+                            { type: "radio", id: "v3_s9", text: "9. Care din următoarele elemente nu reprezintă componente tehnico-organizatorice ale SCCB?", options: { a: "subsistemul de comunicații prin mijloace alternative", b: "rezerva de comunicații și informatică", c: "elemente de sprijin logistic" }, correct: "c" },
+                            { type: "radio", id: "v3_s10", text: "10. Care din următoarele platforme extinse/WAS sunt disponibile la batalion?", options: { a: "platforma de nivel CC/PC I", b: "platforma de nivel batalion", c: "platforma de nivel companie" }, correct: "b" },
+                            { type: "radio", id: "v3_s11", text: "11. Comandantul unității are în PC 80 ofițeri... Să se calculeze numărul de OM și SBB:", options: { a: "21 OM și 11 SBB", b: "22 OM și 11 SBB", c: "20 OM și 10 SBB" }, correct: "b" },
+                            { type: "radio", id: "v3_s12", text: "12. În aplicarea măsurilor de protecție a mijloacelor electronice împotriva acțiunii impulsului electromagnetic nuclear sunt cunoscute câteva direcții de realizare printre care:", options: { a: "utilizarea ecranelor nemetalice", b: "utilizarea componentelor din generația întâi", c: "înlocuirea cablurilor din fibră optică cu cabluri metalice", d: "protecția aparaturii existente" }, correct: "d" },
+                            { type: "radio", id: "v3_s13", text: "13. Pentru organizarea, instalarea, exploatarea și mentenanța sistemului de comunicații de campanie... se vor lua următoarele măsuri:", options: { a: "se vor lua în calcul posibilitățile utilizării rețelelor de telecomunicații publice", b: "antenele pot fi amplasate lângă turnurile de apă, biserici etc.", c: "stațiile radio se demontează de pe vehicule" }, correct: "a" },
+                            { type: "radio", id: "v3_s14", text: "14. La batalionul de luptă plutonul de comunicații și informatică (PL.C.I.) are următoarele misiuni principale:", options: { a: "asigură asistența de specialitate utilizatorilor / abonaților", b: "asigură comunicațiile prin mijloace alternative", c: "sprijină cu forțe și mijloace subunitățile batalionului" }, correct: "b" },
+                            { type: "radio", id: "v3_s15", text: "15. Pentru a răspunde cerințelor destinate să asigure sprijinul C2 în/între centrele de conducere/puncte de comandă sunt destinate funcții CIS esențiale. Care din următoarele nu reprezintă o astfel de funcție?", options: { a: "funcția INFOSEC", b: "funcția non-CIS", c: "funcția de realizare a comunicațiilor externe și/sau cu eșalonul superior" }, correct: "b" }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        let currentVariant = 'variant1';
+
+        window.onload = () => {
+            const tabsContainer = document.getElementById('tabs-container');
+            
+            Object.keys(quizData).forEach((key, index) => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn flex-1 py-4 px-6 text-center text-sm md:text-base font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap ${index === 0 ? 'active' : ''}`;
+                btn.innerText = quizData[key].title;
+                btn.onclick = () => switchTab(key, btn);
+                tabsContainer.appendChild(btn);
+            });
+
+            renderQuiz(currentVariant);
+        };
+
+        function switchTab(variantKey, btnElement) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            currentVariant = variantKey;
+            renderQuiz(variantKey);
+        }
+
+        function renderQuiz(variantKey) {
+            const container = document.getElementById('quiz-container');
+            const data = quizData[variantKey];
+            container.classList.remove('evaluated');
+            
+            let html = `<div class="mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <h2 class="text-2xl font-bold border-b pb-2 text-primary w-full md:w-auto">${data.title}</h2>
+                            <button onclick="autocompleteQuiz('${variantKey}')" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg shadow-md font-bold transition-transform transform hover:scale-105 flex items-center gap-2">
+                                ✨ Autocompletează Testul
+                            </button>
+                        </div>`;
+            
+            data.sections.forEach(sec => {
+                html += `<div class="bg-gray-800 text-white px-4 py-3 mt-8 rounded-t-lg font-bold uppercase tracking-wide text-sm md:text-base">${sec.title}</div>`;
+                html += `<div class="bg-white border border-gray-300 rounded-b-lg p-5 shadow-sm space-y-6">`;
+
+                sec.items.forEach(q => {
+                    html += `<div class="question-block" id="block_${q.id}">
+                                <p class="font-bold text-gray-800 mb-3 text-[1.05rem]">${q.text}</p>`;
+
+                    if (q.type === 'radio') {
+                        html += `<div class="space-y-2 pl-2 md:pl-4">`;
+                        Object.keys(q.options).forEach(optKey => {
+                            html += `
+                                <label class="quiz-option" id="label_${q.id}_${optKey}">
+                                    <input type="radio" name="${q.id}" value="${optKey}">
+                                    <span class="text-gray-700 font-medium">${optKey}. ${q.options[optKey]}</span>
+                                </label>`;
+                        });
+                        html += `</div>`;
+                    } else if (q.type === 'text') {
+                        html += `<div class="pl-2 md:pl-4">
+                                    <input type="text" id="${q.id}" class="text-input" placeholder="Scrie răspunsul aici...">
+                                    <div class="expected-answer">Răspuns Așteptat: ${q.expected}</div>
+                                 </div>`;
+                    } else if (q.type === 'graphic') {
+                        html += `<div class="pl-2 md:pl-4">
+                                    <div class="border-2 border-dashed border-gray-300 p-6 rounded text-center text-gray-400 italic mb-2 bg-gray-50">Desenează schema pe foaia de hârtie. (Zonă de simulare)</div>
+                                    <textarea id="${q.id}" rows="2" class="text-input" placeholder="Notițe despre schemă..."></textarea>
+                                    <div class="expected-answer">Explicație Grafică:<br>${q.expected}</div>
+                                 </div>`;
+                    }
+
+                    html += `</div>`;
+                });
+
+                html += `</div>`;
+            });
+
+            html += `
+                <div class="mt-10 flex flex-col items-center border-t pt-8 pb-4">
+                    <button onclick="evaluateQuiz('${variantKey}')" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-xl shadow-lg transition-transform transform hover:scale-105 font-bold text-xl w-full md:w-auto flex justify-center items-center gap-2">
+                        <span>Evaluează Răspunsurile</span>
+                    </button>
+                    <div id="results_${variantKey}" class="mt-6 w-full max-w-md text-center hidden">
+                        <div class="p-6 rounded-lg bg-gray-50 border-2 border-dashed border-gray-300 shadow-inner">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Rezultat Partea Grilă</h3>
+                            <p class="text-5xl font-black text-primary" id="score_${variantKey}">0 / 0</p>
+                            <p class="text-sm text-gray-600 mt-4 font-semibold">Derulează mai sus pentru a vedea corecturile (cu verde/roșu) sau soluțiile scrise!</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function autocompleteQuiz(variantKey) {
+            const data = quizData[variantKey];
+            
+            // Completam instant campurile corespunzatoare cu raspunsurile din `quizData`
+            data.sections.forEach(sec => {
+                sec.items.forEach(q => {
+                    if (q.type === 'radio') {
+                        const radioElement = document.querySelector(`input[name="${q.id}"][value="${q.correct}"]`);
+                        if (radioElement) radioElement.checked = true;
+                    } else if (q.type === 'text' || q.type === 'graphic') {
+                        const textElement = document.getElementById(q.id);
+                        if (textElement) textElement.value = q.expected;
+                    }
+                });
+            });
+
+            // Rulează evaluarea ca să arate culorile (10/10 direct)
+            evaluateQuiz(variantKey);
+        }
+
+        function evaluateQuiz(variantKey) {
+            const container = document.getElementById('quiz-container');
+            const data = quizData[variantKey];
+            let score = 0;
+            let totalRadios = 0;
+
+            container.classList.add('evaluated');
+
+            data.sections.forEach(sec => {
+                sec.items.forEach(q => {
+                    if (q.type === 'radio') {
+                        totalRadios++;
+                        const radios = document.getElementsByName(q.id);
+                        let selectedValue = null;
+                        
+                        Object.keys(q.options).forEach(optKey => {
+                            const label = document.getElementById(`label_${q.id}_${optKey}`);
+                            label.classList.remove('option-correct', 'option-error');
+                            label.querySelector('span').classList.remove('option-missed');
+                        });
+
+                        radios.forEach(r => {
+                            if (r.checked) selectedValue = r.value;
+                            r.disabled = true; 
+                        });
+
+                        const isCorrect = selectedValue === q.correct;
+                        
+                        if (isCorrect) {
+                            score++;
+                            document.getElementById(`label_${q.id}_${selectedValue}`).classList.add('option-correct');
+                        } else {
+                            if (selectedValue) {
+                                document.getElementById(`label_${q.id}_${selectedValue}`).classList.add('option-error');
+                            }
+                            const correctLabel = document.getElementById(`label_${q.id}_${q.correct}`);
+                            if(correctLabel) {
+                                correctLabel.querySelector('span').classList.add('option-missed');
+                            }
+                        }
+                    } else {
+                        const inputElement = document.getElementById(q.id);
+                        if(inputElement) inputElement.disabled = true;
+                    }
+                });
+            });
+
+            const resultsDiv = document.getElementById(`results_${variantKey}`);
+            const scoreText = document.getElementById(`score_${variantKey}`);
+            
+            scoreText.innerText = `${score} / ${totalRadios}`;
+            resultsDiv.classList.remove('hidden');
+
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    </script>
+</body>
+</html>
